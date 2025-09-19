@@ -1,48 +1,48 @@
 Step 1. Symptom Preprocessing
 
-Input: Raw user input (free text, e.g., “I have fever and chest pain for 2 days”).
+    Input: Raw user input (free text, e.g., “I have fever and chest pain for 2 days”).
 
-What it does:
+    What it does:
 
-Normalize text into structured symptom list.
+    -Normalize text into structured symptom list.
 
-Map synonyms (e.g., “temperature” → “fever”).
+    -Map synonyms (e.g., “temperature” → “fever”).
 
-Dataset: symptom ontology (from disease KB), or simple rules.
+    -Dataset: symptom ontology (from disease KB), or simple rules.
 
-Output: S_exp = ["fever", "chest pain"] (explicit symptom list).
+    -Output: S_exp = ["fever", "chest pain"] (explicit symptom list).
 
 Step 2. Retriever (Candidate Diseases)
 
-Input: S_exp (symptom list).
+    Input: S_exp (symptom list).
 
-Model: Sentence-BERT (all-mpnet-base-v2 or biobert-base) + FAISS index over the Disease KB (9,604 diseases).
+    Model: Sentence-BERT (all-mpnet-base-v2 or biobert-base) + FAISS index over the Disease KB (9,604 diseases).
 
-Dataset: Disease KB (each disease entry has name + symptoms + overview).
+    Dataset: Disease KB (each disease entry has name + symptoms + overview).
 
-What it does:
+    What it does:
 
-Convert symptoms to embedding.
+    -Convert symptoms to embedding.
 
-Retrieve Top-K candidate diseases likely matching symptoms.
+    -Retrieve Top-K candidate diseases likely matching symptoms.
 
-Output: D' = [Pneumonia, Flu, COVID, …] (Top-K candidates).
+    -Output: D' = [Pneumonia, Flu, COVID, …] (Top-K candidates).
 
 Step 3. Reasoner (DiagnosisGPT)
 
-Input:
+ Input:
 
-S_exp (current symptoms).
+  S_exp (current symptoms).
 
-D' (Top-K candidate diseases).
+  D' (Top-K candidate diseases).
 
-Optionally: KB snippets for each disease.
+  Optionally: KB snippets for each disease.
 
-Model: DiagnosisGPT (from GitHub/Hugging Face).
+  Model: DiagnosisGPT (from GitHub/Hugging Face).
 
-Already fine-tuned on CoD Synthetic Dataset (48k cases).
+  Already fine-tuned on CoD Synthetic Dataset (48k cases).
 
-Outputs reasoning + confidences + action.
+  Outputs reasoning + confidences + action.
 
 Output (JSON style):
 
@@ -59,21 +59,21 @@ Step 4. Controller (Next Symptom Decision)
 
 Input:
 
-Confidence distribution from Reasoner.
+  Confidence distribution from Reasoner.
 
-Candidate symptoms from disease KB.
+  Candidate symptoms from disease KB.
 
-Model: Entropy-based selection (rule-based math).
+  Model: Entropy-based selection (rule-based math).
 
-Dataset: Disease KB + patient case (to check explicit vs implicit symptoms).
+  Dataset: Disease KB + patient case (to check explicit vs implicit symptoms).
 
 What it does:
 
-If max confidence ≥ threshold τ → stop (diagnosis).
+   -If max confidence ≥ threshold τ → stop (diagnosis).
 
-Else → pick next most informative symptom to ask.
+   -Else → pick next most informative symptom to ask.
 
-Output: either
+    -Output: either
 
 {"judge": true, "disease": "Pneumonia"}
 
@@ -85,11 +85,11 @@ Input: System’s question (from Controller).
 
 What it does:
 
-If patient says yes → add symptom to S_exp.
+   -If patient says yes → add symptom to S_exp.
 
-If no → mark as absent.
+   -If no → mark as absent.
 
-Loop back to Retriever → Reasoner → Controller.
+    Loop back to Retriever → Reasoner → Controller.
 
 Dataset:
 
@@ -105,9 +105,9 @@ Input: Final confidence distribution after enough questioning.
 
 What it does:
 
-Stop when confidence ≥ τ (e.g., 0.55).
+   -Stop when confidence ≥ τ (e.g., 0.55).
 
-Return step-by-step reasoning + top diseases with confidences.
+   -Return step-by-step reasoning + top diseases with confidences.
 
 Output (to user):
 
