@@ -1,0 +1,3 @@
+Disease dataset: https://huggingface.co/datasets/FreedomIntelligence/Disease_Database
+COD symptom dataset: https://huggingface.co/datasets/FreedomIntelligence/CoD-PatientSymDisease
+Test Dataset: https://huggingface.co/datasets/FreedomIntelligence/DxBench
