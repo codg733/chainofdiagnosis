@@ -1,0 +1,117 @@
+Step 1. Symptom Preprocessing
+
+    Input: Raw user input (free text, e.g., “I have fever and chest pain for 2 days”).
+
+    What it does:
+
+    -Normalize text into structured symptom list.
+
+    -Map synonyms (e.g., “temperature” → “fever”).
+
+    -Dataset: symptom ontology (from disease KB), or simple rules.
+
+    -Output: S_exp = ["fever", "chest pain"] (explicit symptom list).
+
+Step 2. Retriever (Candidate Diseases)
+
+    Input: S_exp (symptom list).
+
+    Model: Sentence-BERT (all-mpnet-base-v2 or biobert-base) + FAISS index over the Disease KB (9,604 diseases).
+
+    Dataset: Disease KB (each disease entry has name + symptoms + overview).
+
+    What it does:
+
+    -Convert symptoms to embedding.
+
+    -Retrieve Top-K candidate diseases likely matching symptoms.
+
+    -Output: D' = [Pneumonia, Flu, COVID, …] (Top-K candidates).
+
+Step 3. Reasoner (DiagnosisGPT)
+
+ Input:
+
+  S_exp (current symptoms).
+
+  D' (Top-K candidate diseases).
+
+  Optionally: KB snippets for each disease.
+
+  Model: DiagnosisGPT (from GitHub/Hugging Face).
+
+  Already fine-tuned on CoD Synthetic Dataset (48k cases).
+
+  Outputs reasoning + confidences + action.
+
+Output (JSON style):
+
+{
+  "analysis": [
+    "Step 1: Fever + cough → flu, pneumonia, COVID possible.",
+    "Step 2: Chest pain aligns more with pneumonia."
+  ],
+  "distribution": {"Pneumonia": 0.72, "Flu": 0.18, "COVID": 0.10},
+  "action": {"judge": false, "symptom": "shortness of breath"}
+}
+
+Step 4. Controller (Next Symptom Decision)
+
+Input:
+
+  Confidence distribution from Reasoner.
+
+  Candidate symptoms from disease KB.
+
+  Model: Entropy-based selection (rule-based math).
+
+  Dataset: Disease KB + patient case (to check explicit vs implicit symptoms).
+
+What it does:
+
+   -If max confidence ≥ threshold τ → stop (diagnosis).
+
+   -Else → pick next most informative symptom to ask.
+
+    -Output: either
+
+{"judge": true, "disease": "Pneumonia"}
+
+or {"judge": false, "symptom": "shortness of breath"}
+
+Step 5. User Interaction Loop
+
+Input: System’s question (from Controller).
+
+What it does:
+
+   -If patient says yes → add symptom to S_exp.
+
+   -If no → mark as absent.
+
+    Loop back to Retriever → Reasoner → Controller.
+
+Dataset:
+
+During testing → use CoD Synthetic Dataset (has explicit + implicit symptoms).
+
+During eval → use DxBench, Muzhi, Dxy (real cases).
+
+Output: Updated symptom set.
+
+Step 6. Final Diagnosis
+
+Input: Final confidence distribution after enough questioning.
+
+What it does:
+
+   -Stop when confidence ≥ τ (e.g., 0.55).
+
+   -Return step-by-step reasoning + top diseases with confidences.
+
+Output (to user):
+
+Step 1: Fever + cough → flu, pneumonia, COVID possible.
+Step 2: Chest pain aligns more with pneumonia.
+Step 3: X-ray fluid → pneumonia confirmed.
+Final Diagnosis: Pneumonia (72%). Alternatives: Flu (18%), COVID (10%).
