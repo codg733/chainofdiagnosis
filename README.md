@@ -9,7 +9,7 @@
 - [**Dataset**](./Dataset) – Contains all datasets used for training and evaluation.  
 - [**Resources**](./Resources) – Includes pre-trained models, embeddings, and utility files.  
 - [**Architecture**](./Architecture) – Code for the CoD model, including retriever and reasoner modules.
-- [**ResearchPaper**](./ChainofDiagnosis .pdf) – Contains the research paper, notes, and related materials.
+- [**ResearchPaper**](./ChainofDiagnosis.pdf) – Contains the research paper, notes, and related materials.
 
 
 ---
