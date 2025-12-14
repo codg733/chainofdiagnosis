@@ -1,2 +1,12 @@
-pip install streamlit streamlit-mic-recorder googletrans==4.0.0-rc1 pandas
-pip install streamlit streamlit-mic-recorder
+streamlit
+transformers
+peft
+accelerate
+torch==2.2.0
+torchvision==0.17.0
+sentence-transformers
+faiss-cpu
+rank-bm25
+datasets
+numpy==1.26.4
+pandas
