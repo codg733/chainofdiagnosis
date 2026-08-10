@@ -1,6 +1,6 @@
-# 🩺 Chain-of-Diagnosis (CoD)
+# 🩺 MedPathAI: CoD-Based AI Medical Diagnosis Assistant
 
-**Chain-of-Diagnosis (CoD)** is an AI-based medical diagnostic system that mimics expert clinical reasoning by combining retrieval, iterative follow-up questioning, and confidence-based reasoning to predict possible diseases based on patient symptoms.
+**MedPathAI: CoD-Based AI Medical Diagnosis Assistant** is an AI-based medical diagnostic system that mimics expert clinical reasoning by combining retrieval, iterative follow-up questioning, and confidence-based reasoning to predict possible diseases based on patient symptoms.
 
 ---
 
